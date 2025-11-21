@@ -28,15 +28,25 @@
 #include "LatentActions.h"
 #include "SignalRValueWrapper.h"
 
-void USignalRHubConnectionWrapper::SetHubConnection(const TSharedPtr<IHubConnection>& InHubConnection)
+void USignalRHubConnectionWrapper::SetHubConnection(const TSharedPtr<IHubConnection>& InHubConnection, const FOnHubConnectedEvent& OnHubConnected,
+                          const FOnHubConnectionErrorEvent& OnHubConnectionError,  const FOnHubConnectionClosedEvent& OnHubConnectionClosed)
 {
     HubConnection = InHubConnection;
 
     if (HubConnection.IsValid())
     {
-        HubConnection->OnConnected().AddUObject(this, &ThisClass::BroadcastOnHubConnected);
-        HubConnection->OnConnectionError().AddUObject(this, &ThisClass::BroadcastOnHubConnectionError);
-        HubConnection->OnClosed().AddUObject(this, &ThisClass::BroadcastOnHubConnectionClosed);
+        HubConnection->OnConnected().AddLambda([OnHubConnected]()
+        {
+            OnHubConnected.ExecuteIfBound();
+        });
+        HubConnection->OnConnectionError().AddLambda([OnHubConnectionError](const FString& InError)
+        {
+            OnHubConnectionError.ExecuteIfBound(InError);
+        });
+        HubConnection->OnClosed().AddLambda([OnHubConnectionClosed]()
+        {
+            OnHubConnectionClosed.ExecuteIfBound();
+        });
     }
 }
 
@@ -76,22 +86,20 @@ void USignalRHubConnectionWrapper::Invoke(const FString& EventName, const TArray
     }
 }
 
+void USignalRHubConnectionWrapper::On(const FOnEventReceived& InOnEventReceived, const FString& EventName)
+{
+    if (HubConnection.IsValid())
+    {
+        HubConnection->On(EventName).BindLambda([InOnEventReceived](const TArray<FSignalRValue>& Values)
+            {
+                TArray<FSignalRValueWrapper> WrappedValues;
+                Algo::Transform(Values, WrappedValues, [](const FSignalRValue& Value) { return FSignalRValueWrapper(Value); });
+                InOnEventReceived.ExecuteIfBound(WrappedValues);
+            });
+    }
+}
+
 void USignalRHubConnectionWrapper::OnInvokeCompleted(const FSignalRInvokeResult& Result, FOnInvokeCompleted Delegate)
 {
     Delegate.ExecuteIfBound(Result);
-}
-
-void USignalRHubConnectionWrapper::BroadcastOnHubConnected()
-{
-    OnHubConnected.Broadcast();
-}
-
-void USignalRHubConnectionWrapper::BroadcastOnHubConnectionError(const FString& InError)
-{
-    OnHubConnectionError.Broadcast(InError);
-}
-
-void USignalRHubConnectionWrapper::BroadcastOnHubConnectionClosed()
-{
-    OnHubConnectionClosed.Broadcast();
 }

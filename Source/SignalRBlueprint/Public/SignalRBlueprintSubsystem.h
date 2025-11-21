@@ -28,6 +28,9 @@
 #include "Subsystems/EngineSubsystem.h"
 #include "SignalRBlueprintSubsystem.generated.h"
 
+class FOnHubConnectionClosedEvent;
+class FOnHubConnectionErrorEvent;
+class FOnHubConnectedEvent;
 class USignalRHubConnectionWrapper;
 class USignalRSubsystem;
 
@@ -42,7 +45,8 @@ public:
     //~ End UEngineSubsystem Interface
 
     UFUNCTION(BlueprintCallable, Category = "SignalR", Meta = (AutoCreateRefTerm = "Headers"))
-    USignalRHubConnectionWrapper* ConnectToHub(const FString& Url, const TMap<FString, FString>& Headers);
+    USignalRHubConnectionWrapper* ConnectToHub(const FString& Url, const TMap<FString, FString>& Headers, const FOnHubConnectedEvent& OnHubConnected,
+                          const FOnHubConnectionErrorEvent& OnHubConnectionError,  const FOnHubConnectionClosedEvent& OnHubConnectionClosed);
 
 private:
     UPROPERTY()

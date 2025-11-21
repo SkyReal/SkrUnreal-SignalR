@@ -40,10 +40,11 @@ void USignalRBlueprintSubsystem::Deinitialize()
 }
 
 USignalRHubConnectionWrapper* USignalRBlueprintSubsystem::ConnectToHub(const FString& InUrl,
-                                                                const TMap<FString, FString>& InHeaders)
+const TMap<FString, FString>& InHeaders, const FOnHubConnectedEvent& OnHubConnected,
+const FOnHubConnectionErrorEvent& OnHubConnectionError,  const FOnHubConnectionClosedEvent& OnHubConnectionClosed)
 {
     checkfSlow(SignalRSubsystem != nullptr, TEXT("SignalRSubsystem must have be set during initialization"));
     USignalRHubConnectionWrapper* HubConnectionWrapper =  NewObject<USignalRHubConnectionWrapper>();
-    HubConnectionWrapper->SetHubConnection(SignalRSubsystem->CreateHubConnection(InUrl, InHeaders));
+    HubConnectionWrapper->SetHubConnection(SignalRSubsystem->CreateHubConnection(InUrl, InHeaders), OnHubConnected, OnHubConnectionError, OnHubConnectionClosed);
     return HubConnectionWrapper;
 }

@@ -30,26 +30,21 @@
 #include "SignalRValueWrapper.h"
 #include "SignalRHubConnectionWrapper.generated.h"
 
+DECLARE_DYNAMIC_DELEGATE_OneParam(FOnEventReceived, const TArray<FSignalRValueWrapper>&, SignalValues);
+DECLARE_DYNAMIC_DELEGATE(FOnHubConnectedEvent);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FOnHubConnectionErrorEvent, const FString&, Error);
+DECLARE_DYNAMIC_DELEGATE(FOnHubConnectionClosedEvent);
+
 struct FSignalRValueWrapper;
 
 UCLASS(BlueprintType, DisplayName = "SignalR Hub Connection")
 class SIGNALRBLUEPRINT_API USignalRHubConnectionWrapper : public UObject
 {
     GENERATED_BODY()
+
 public:
-    DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHubConnectedEvent);
-    UPROPERTY(BlueprintAssignable)
-    FOnHubConnectedEvent OnHubConnected;
-
-    DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHubConnectionErrorEvent, const FString&, Error);
-    UPROPERTY(BlueprintAssignable)
-    FOnHubConnectionErrorEvent OnHubConnectionError;
-
-    DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHubConnectionClosedEvent);
-    UPROPERTY(BlueprintAssignable)
-    FOnHubConnectionClosedEvent OnHubConnectionClosed;
-
-    void SetHubConnection(const TSharedPtr<IHubConnection>& HubConnection);
+    void SetHubConnection(const TSharedPtr<IHubConnection>& InHubConnection, const FOnHubConnectedEvent& OnHubConnected,
+                          const FOnHubConnectionErrorEvent& OnHubConnectionError,  const FOnHubConnectionClosedEvent& OnHubConnectionClosed);
 
     UFUNCTION(BlueprintCallable, Category = "SignalR")
     void Start();
@@ -57,20 +52,22 @@ public:
     UFUNCTION(BlueprintCallable, Category = "SignalR")
     void Stop();
 
-    UFUNCTION(BlueprintCallable, Category = "SignalR", DisplayName = "Invoke SignalR Method", Meta = (AutoCreateRefTerm = "Arguments"))
+    UFUNCTION(BlueprintCallable, Category = "SignalR", DisplayName = "Invoke SignalR Method",
+        Meta = (AutoCreateRefTerm = "Arguments"))
     void Send(const FString& EventName, const TArray<FSignalRValueWrapper>& Arguments);
 
     DECLARE_DYNAMIC_DELEGATE_OneParam(FOnInvokeCompleted, const FSignalRInvokeResultWrapper&, Result);
 
-    UFUNCTION(BlueprintCallable, Category = "SignalR", DisplayName = "Invoke SignalR Method (Latent)", Meta = (AutoCreateRefTerm = "Arguments, OnCompleted"))
-    void Invoke(const FString& EventName, const TArray<FSignalRValueWrapper>& Arguments, const FOnInvokeCompleted& OnCompleted);
+    UFUNCTION(BlueprintCallable, Category = "SignalR", DisplayName = "Invoke SignalR Method (Latent)",
+        Meta = (AutoCreateRefTerm = "Arguments, OnCompleted"))
+    void Invoke(const FString& EventName, const TArray<FSignalRValueWrapper>& Arguments,
+                const FOnInvokeCompleted& OnCompleted);
+
+    UFUNCTION(BlueprintCallable, Category = "SignalR", DisplayName = "Bind Event to SignalR Method")
+    void On(const FOnEventReceived& InOnEventReceived, const FString& EventName);
 
 private:
     void OnInvokeCompleted(const FSignalRInvokeResult& Result, FOnInvokeCompleted Delegate);
-
-    void BroadcastOnHubConnected();
-    void BroadcastOnHubConnectionError(const FString& Error);
-    void BroadcastOnHubConnectionClosed();
 
     TSharedPtr<IHubConnection> HubConnection;
 };

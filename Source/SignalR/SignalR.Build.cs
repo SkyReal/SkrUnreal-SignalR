@@ -23,12 +23,15 @@
  */
 
 using System;
+using System.IO;
 using UnrealBuildTool;
 
 public class SignalR : ModuleRules
 {
 	public SignalR(ReadOnlyTargetRules Target) : base(Target)
 	{
+		bUsePrecompiled = !Directory.Exists(Path.Combine(ModuleDirectory, "Private"));
+		
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
         PublicDependencyModuleNames.AddRange(new string[]
