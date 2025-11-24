@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include "Misc/TVariant.h"
 #include "CoreMinimal.h"
 
 class SIGNALR_API FSignalRValue

@@ -109,6 +109,11 @@ void FHubConnection::Send(const FString& InEventName, const TArray<FSignalRValue
     InvokeHubMethod(InEventName, InArguments, NAME_None);
 }
 
+bool FHubConnection::IsConnected()
+{
+    return Connection.IsValid() && Connection->IsConnected();
+}
+
 void FHubConnection::Tick(float DeltaTime)
 {
     TickTimeCounter += DeltaTime;

@@ -66,6 +66,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "SignalR", DisplayName = "Bind Event to SignalR Method")
     void On(const FOnEventReceived& InOnEventReceived, const FString& EventName);
 
+    UFUNCTION(BlueprintPure, Category="SignalR")
+    bool IsConnected();
+
 private:
     void OnInvokeCompleted(const FSignalRInvokeResult& Result, FOnInvokeCompleted Delegate);
 

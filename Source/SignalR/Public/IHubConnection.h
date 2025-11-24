@@ -147,6 +147,8 @@ public:
         Send(EventName, TArray<FSignalRValue> { MoveTemp(Arguments)... });
     }
 
+    virtual bool IsConnected() = 0;
+
 protected:
 
     /**

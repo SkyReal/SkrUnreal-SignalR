@@ -99,6 +99,11 @@ void USignalRHubConnectionWrapper::On(const FOnEventReceived& InOnEventReceived,
     }
 }
 
+bool USignalRHubConnectionWrapper::IsConnected()
+{
+    return HubConnection.IsValid() && HubConnection->IsConnected();
+}
+
 void USignalRHubConnectionWrapper::OnInvokeCompleted(const FSignalRInvokeResult& Result, FOnInvokeCompleted Delegate)
 {
     Delegate.ExecuteIfBound(Result);

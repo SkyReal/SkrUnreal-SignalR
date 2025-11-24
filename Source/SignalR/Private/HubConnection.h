@@ -62,6 +62,7 @@ public:
     virtual FOnMethodInvocation& On(const FString& EventName) override;
     virtual FOnMethodCompletion& Invoke(const FString& EventName, const TArray<FSignalRValue>& InArguments = TArray<FSignalRValue>()) override;
     virtual void Send(const FString& InEventName, const TArray<FSignalRValue>& InArguments = TArray<FSignalRValue>()) override;
+    virtual bool IsConnected() override;
     //~ End IHubConnection Interface
 
     //~ Begin FTickableGameObject Interface
