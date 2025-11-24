@@ -25,6 +25,7 @@
 #include "SignalRBlueprintSubsystem.h"
 #include "SignalRHubConnectionWrapper.h"
 #include "SignalRSubsystem.h"
+#include "Subsystems/SubsystemCollection.h"
 
 void USignalRBlueprintSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
